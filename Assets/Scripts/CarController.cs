@@ -16,7 +16,9 @@ public class CarController : MonoBehaviour
 
     private void Awake()
     {
+        // gather inputs
         m_Inputs = GetComponents<IInput>();
+
     }
 
     private void Update()
