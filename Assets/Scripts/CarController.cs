@@ -11,27 +11,56 @@ public class CarController : MonoBehaviour
     [SerializeField] private float carTorque = 10f;
     [SerializeField] private float maxWheelTorque = 1000f;
     private float movement;
+    private IInput[] m_Inputs;
+    private InputData m_Input;
 
+    private void Awake()
+    {
+        m_Inputs = GetComponents<IInput>();
+    }
 
     private void Update()
     {
-        movement = Input.GetAxis("Horizontal");
+        GatherInputs();
     }
 
     private void FixedUpdate()
     {
-        backTire.AddTorque(-movement * speed * Time.deltaTime, ForceMode2D.Force);
-        frontTire.AddTorque(-movement * speed * Time.deltaTime, ForceMode2D.Force);
-        carRigidbody.AddTorque(-movement * carTorque * Time.deltaTime, ForceMode2D.Force);
+        Move();
         ClampAngularVelocity();
     }
 
+    void Move()
+    {
+        movement = (m_Input.Accelerate ? 1.0f : 0.0f) - (m_Input.Brake ? 1.0f : 0.0f);
+        backTire.AddTorque(-movement * speed * Time.deltaTime);
+        frontTire.AddTorque(-movement * speed * Time.deltaTime);
+        carRigidbody.AddTorque(-movement * carTorque * Time.deltaTime);
+    }
+
+    // prevent chaotic movement of wheels
+    // at high ang. speed
     void ClampAngularVelocity()
     {
+        //back tire
         if (backTire.angularVelocity < -maxWheelTorque) { backTire.angularVelocity = -maxWheelTorque; }
         if (backTire.angularVelocity > maxWheelTorque) { backTire.angularVelocity = maxWheelTorque; }
-        
+       
+        //front tire
         if (frontTire.angularVelocity < -maxWheelTorque) { frontTire.angularVelocity = -maxWheelTorque; }
         if (frontTire.angularVelocity > maxWheelTorque) { frontTire.angularVelocity = maxWheelTorque; }
+    }
+
+    void GatherInputs()
+    {
+        // reset input
+        m_Input = new InputData();
+
+        // gather nonzero input from our sources
+        for (int i = 0; i < m_Inputs.Length; i++)
+        {
+            m_Input += m_Inputs[i].GenerateInput();
+        }
+
     }
 }
