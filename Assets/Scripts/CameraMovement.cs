@@ -12,7 +12,7 @@ public class CameraMovement : MonoBehaviour
         offset = transform.position - target.position;
     }
 
-    private void Update()
+    private void Update() 
     {
         transform.position = target.position + offset;
     }
