@@ -29,7 +29,8 @@ public class CarController : MonoBehaviour
     private void FixedUpdate()
     {
         Move();
-        ClampAngularVelocity();
+        ClampAngularVelocity(); 
+
     }
 
     void Move()
